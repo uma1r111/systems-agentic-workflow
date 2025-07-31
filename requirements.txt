@@ -1,4 +1,4 @@
 pandas
 requests
 scikit-learn
-boto
+boto3
