@@ -1,0 +1,39 @@
+name: Feature Selection
+
+on:
+  workflow_run: # Triggers when Feature Engineering completes
+    workflows: ["Feature Engineering"]
+    types:
+      - completed
+  workflow_dispatch: # Allows manual triggering
+
+
+jobs:
+  feature-engineering:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Feature Engineering
+        run: |
+          python "feature selection/feature_selection.py"
+
+      - name: Commit and Push Preprocessed CSV
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add data/feature_selection.csv
+          git commit -m "Daily update: Feature selection" || echo "No changes to commit"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
