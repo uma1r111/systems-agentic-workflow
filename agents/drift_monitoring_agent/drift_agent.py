@@ -6,6 +6,7 @@ from scipy import stats
 from typing import Dict, List, Any
 import os
 from pathlib import Path
+import google.generativeai as genai
 
 class DriftMonitoringAgent:
     def __init__(self, drift_threshold: float = 0.15):
@@ -133,120 +134,80 @@ class DriftMonitoringAgent:
             return "distribution_shift"
         return "no_drift"
     
-    def generate_feature_recommendations(self, drift_results: Dict[str, Any]) -> List[str]:
-        recommendations = []
-        significant_drifts = drift_results['significant_drifts']
-        
-        pollutant_drifts = [d for d in significant_drifts 
-                           if any(pol in d['feature'] for pol in ['pm2_5', 'pm10', 'co', 'no2', 'so2', 'o3'])]
-        weather_drifts = [d for d in significant_drifts 
-                         if any(weather in d['feature'] for weather in ['temp', 'humidity', 'wind', 'precip'])]
-        
-        if pollutant_drifts:
-            recommendations.extend([
-                "uv_index", "pm1", "visibility_km", "air_pressure_hpa"
-            ])
-        if weather_drifts:
-            recommendations.extend([
-                "dew_point_C", "heat_index", "wind_direction", "cloud_cover_%"
-            ])
-        if any('time' in d['feature'] or 'hour' in d['feature'] for d in significant_drifts):
-            recommendations.extend(["month_sin", "month_cos", "season_encoded"])
-        variance_drifts = [d for d in significant_drifts if d['drift_type'] == 'variance_shift']
-        if variance_drifts:
-            recommendations.extend(["pm2_5_rolling_3d", "pm2_5_rolling_7d", "temp_rolling_3d", "aqi_rolling_7d"])
-        
-        return list(set(recommendations))
-    
     def create_llm_prompt(self, df: pd.DataFrame, drift_results: Dict[str, Any]) -> str:
-        """Use the full detailed Drift Monitoring Agent prompt template"""
+        """Generate a prompt for the LLM with all drift metrics and details"""
         recent_data, baseline_data = self.split_time_periods(df)
-        
+
         data_period_info = f"""
-Data Period: {df.index.min()} to {df.index.max()}
-Recent Period (7 days): {recent_data.index.min()} to {recent_data.index.max()}
-Baseline Period (90 days): {baseline_data.index.min()} to {baseline_data.index.max()}
-"""
-        drift_detection_results = f"Drift Threshold: {self.drift_threshold*100}%\nTotal Features: {len(df.columns)}"
-        top_drifting_features = ""
-        for drift in drift_results['significant_drifts'][:5]:
-            top_drifting_features += f"- {drift['feature']}: {drift['drift_type']} (Mean shift: {drift['metrics']['mean_shift']:.3f}, KS: {drift['metrics']['ks_statistic']:.3f})\n"
-        
-        # Insert your detailed template here
-        detailed_template_path = Path("agents/drift_monitoring_agent/prompts/drift_analysis_prompt.txt")
-        if not detailed_template_path.exists():
-            raise FileNotFoundError(f"{detailed_template_path} not found. Please provide your detailed LLM prompt template.")
-        
-        with open(detailed_template_path, "r") as f:
+    Data Period: {df.index.min()} to {df.index.max()}
+    Recent Period (7 days): {recent_data.index.min()} to {recent_data.index.max()}
+    Baseline Period (90 days): {baseline_data.index.min()} to {baseline_data.index.max()}
+    """
+
+        drift_summary = []
+        for drift in drift_results['significant_drifts']:
+            drift_summary.append(
+                f"- Feature: {drift['feature']}, Drift Type: {drift['drift_type']}, "
+                f"Mean Shift: {drift['metrics']['mean_shift']:.3f}, "
+                f"Variance Shift: {drift['metrics']['variance_shift']:.3f}, "
+                f"KS Statistic: {drift['metrics']['ks_statistic']:.3f}"
+            )
+
+        drift_summary_text = "\n".join(drift_summary) if drift_summary else "No significant drift detected."
+
+        # Load detailed prompt template
+        template_path = Path("agents/drift_monitoring_agent/prompts/drift_analysis_prompt.txt")
+        if not template_path.exists():
+            raise FileNotFoundError(f"{template_path} not found.")
+
+        with open(template_path, "r") as f:
             template = f.read()
-        
+
         prompt = template.replace("{data_period_info}", data_period_info)\
-                         .replace("{drift_detection_results}", drift_detection_results)\
-                         .replace("{top_drifting_features}", top_drifting_features)
+                        .replace("{drift_summary}", drift_summary_text)\
+                        .replace("{all_features}", ", ".join(df.columns))\
+                        .replace("{drift_threshold}", f"{self.drift_threshold*100:.1f}%")
+
         return prompt
-    
+
+
     def run_analysis(self, csv_path: str, output_path: str = None) -> Dict[str, Any]:
-        """Run complete drift analysis"""
-        # Load data
+        """Run full drift analysis and let LLM suggest features and reasoning"""
         df = self.load_data(csv_path)
-        
-        # Detect drift
         drift_results = self.detect_seasonal_shifts(df)
-        
-        # Generate feature recommendations
-        feature_recommendations = self.generate_feature_recommendations(drift_results)
-        
-        # Generate LLM prompt
         llm_prompt = self.create_llm_prompt(df, drift_results)
-        
-        # Map engineered features to base categories
-        pollutants = ['pm2_5', 'pm10', 'co', 'no2', 'so2', 'o3']
-        weather_features = ['temp', 'humidity', 'wind', 'precip']
 
-        all_features = self.raw_features + \
-                    self.engineered_features['logged'] + \
-                    self.engineered_features['scaled'] + \
-                    self.engineered_features['lags'] + \
-                    self.engineered_features['interactions']
-        
-        derived_mapping = {}
-        for feat in all_features:
-            for base in pollutants + weather_features:
-                if base in feat:
-                    derived_mapping[feat] = base
-                    break
+        # Call Gemini / LLM to get recommended features and reasoning
+        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+        model = genai.GenerativeModel("gemini-1.5-flash")
 
-        # Determine focus of recommendations
-        significant_drifts = drift_results['significant_drifts']
-        focus = "pollutant" if any(
-            derived_mapping.get(d['feature'], '') in pollutants for d in significant_drifts
-        ) else "weather"
+        response = model.generate_content(
+            llm_prompt,
+            generation_config=genai.types.GenerationConfig(
+                temperature=0.1,
+                max_output_tokens=500,
+                response_mime_type="application/json"
+            )
+        )
 
-        # Build output
+        llm_output = json.loads(response.text)
+
         output = {
             "seasonal_shift_detected": drift_results['drift_detected'],
-            "features_to_add": feature_recommendations,
-            "reasoning": f"Detected {len(significant_drifts)} features with significant drift. "
-                        f"Recommendations focus on {focus} and temporal pattern improvements.",
+            "features_to_add": llm_output.get("features_to_add", []),
+            "reasoning": llm_output.get("reasoning", ""),
             "detailed_analysis": {
                 "drift_metrics": drift_results['all_metrics'],
-                "significant_drifts": significant_drifts,
+                "significant_drifts": drift_results['significant_drifts'],
                 "llm_prompt": llm_prompt
             }
         }
 
-        # Save results if output_path provided
         if output_path:
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
-            with open(output_path, 'w') as f:
+            with open(output_path, "w") as f:
                 json.dump(output, f, indent=2, default=str)
 
-        return output        
-        if output_path:
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
-            with open(output_path, 'w') as f:
-                json.dump(output, f, indent=2, default=str)
-        
         return output
 
 if __name__ == "__main__":
