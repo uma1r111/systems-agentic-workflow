@@ -15,161 +15,175 @@ env:
 jobs:
   drift-monitoring:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pandas numpy scipy scikit-learn
-          pip install google-generativeai  # Gemini LLM
-          pip install jsonschema
-          pip install -r requirements.txt
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pandas numpy scipy scikit-learn
+        pip install google-generativeai  # For Gemini LLM integration
+        pip install -r requirements.txt
 
-      - name: Check if preprocessed data exists
-        id: check_data
-        run: |
-          if [ -f "data/raw/full_preprocessed_aqi_weather_data_with_all_features.csv" ]; then
-            echo "data_exists=true" >> $GITHUB_OUTPUT
-            echo "Data file found, proceeding with drift analysis"
-          else
-            echo "data_exists=false" >> $GITHUB_OUTPUT
-            echo "Warning: Preprocessed data not found, skipping drift analysis"
-          fi
+    - name: Check if preprocessed data exists
+      id: check_data
+      run: |
+        if [ -f "data/raw/full_preprocessed_aqi_weather_data_with_all_features.csv" ]; then
+          echo "data_exists=true" >> $GITHUB_OUTPUT
+          echo "Data file found, proceeding with drift analysis"
+        else
+          echo "data_exists=false" >> $GITHUB_OUTPUT
+          echo "Warning: Preprocessed data not found, skipping drift analysis"
+        fi
 
-      - name: Run Drift Monitoring Agent
-        if: steps.check_data.outputs.data_exists == 'true'
-        run: |
-          python agents/drift_monitoring_agent/drift_agent.py \
-            --csv_path "data/raw/full_preprocessed_aqi_weather_data_with_all_features.csv" \
-            --output_path "agents/drift_monitoring_agent/outputs/drift_analysis.json"
-        env:
-          DATA_PATH: "data/raw/full_preprocessed_aqi_weather_data_with_all_features.csv"
-          OUTPUT_PATH: "agents/drift_monitoring_agent/outputs/drift_analysis.json"
+    - name: Run Drift Monitoring Agent
+      if: steps.check_data.outputs.data_exists == 'true'
+      run: |
+        python agents/drift_monitoring_agent/drift_agent.py
+      env:
+        DATA_PATH: "data/raw/full_preprocessed_aqi_weather_data_with_all_features.csv"
+        OUTPUT_PATH: "agents/drift_monitoring_agent/outputs/drift_analysis.json"
 
-      - name: Generate LLM Analysis
-        if: steps.check_data.outputs.data_exists == 'true'
-        id: llm_analysis
-        run: |
-          python - <<EOF
-          import json
-          import os
-          import google.generativeai as genai
-          from pathlib import Path
+    - name: Generate LLM Analysis
+      if: steps.check_data.outputs.data_exists == 'true'
+      id: llm_analysis
+      run: |
+        python -c "
+        import json
+        import os
+        import google.generativeai as genai
+        
+        # Configure Gemini API
+        genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        
+        # Load drift analysis results
+        with open('agents/drift_monitoring_agent/outputs/drift_analysis.json', 'r') as f:
+            drift_data = json.load(f)
+        
+        # Load prompt template
+        with open('agents/drift_monitoring_agent/prompts/drift_analysis_prompt.txt', 'r') as f:
+            prompt_template = f.read()
+        
+        # Fill prompt with actual data
+        prompt = prompt_template.format(
+            data_summary=json.dumps(drift_data['detailed_analysis'], indent=2)
+        )
+        
+        # Call Gemini API
+        response = model.generate_content(
+            prompt,
+            generation_config=genai.types.GenerationConfig(
+                temperature=0.1,
+                max_output_tokens=500,
+                response_mime_type='application/json'
+            )
+        )
+        
+        # Parse LLM response
+        llm_output = json.loads(response.text)
+        
+        # Save LLM analysis
+        with open('agents/drift_monitoring_agent/outputs/drift_report.json', 'w') as f:
+            json.dump(llm_output, f, indent=2)
+        
+        # Set output for next workflow
+        print(f'::set-output name=seasonal_shift::{llm_output[\"seasonal_shift_detected\"]}')
+        print(f'::set-output name=features_count::{len(llm_output[\"features_to_add\"])}')
+        "
 
-          genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
-          model = genai.GenerativeModel('gemini-1.5-flash')
+    - name: Validate Drift Report
+      if: steps.check_data.outputs.data_exists == 'true'
+      run: |
+        python -c "
+        import json
+        import jsonschema
+        
+        # Define expected schema
+        schema = {
+            'type': 'object',
+            'properties': {
+                'seasonal_shift_detected': {'type': 'boolean'},
+                'features_to_add': {
+                    'type': 'array',
+                    'items': {'type': 'string'}
+                },
+                'reasoning': {'type': 'string'}
+            },
+            'required': ['seasonal_shift_detected', 'features_to_add', 'reasoning']
+        }
+        
+        # Validate output
+        with open('agents/drift_monitoring_agent/outputs/drift_report.json', 'r') as f:
+            report = json.load(f)
+        
+        jsonschema.validate(report, schema)
+        print('✅ Drift report validation successful')
+        print(f'Seasonal shift detected: {report[\"seasonal_shift_detected\"]}')
+        print(f'Features to add: {len(report[\"features_to_add\"])}')
+        "
 
-          # Load drift analysis results
-          with open('agents/drift_monitoring_agent/outputs/drift_analysis.json', 'r') as f:
-              drift_data = json.load(f)
+    - name: Commit drift analysis results
+      if: steps.check_data.outputs.data_exists == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        # Add drift analysis outputs
+        git add agents/drift_monitoring_agent/outputs/
+        
+        # Only commit if there are changes
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "🤖 Drift analysis results - $(date '+%Y-%m-%d %H:%M')"
+          git push
+        fi
 
-          # Load detailed prompt template
-          template_path = Path('agents/drift_monitoring_agent/prompts/drift_analysis_prompt.txt')
-          with template_path.open() as f:
-              template = f.read()
+    - name: Create Issue if Drift Detected
+      if: steps.check_data.outputs.data_exists == 'true' && steps.llm_analysis.outputs.seasonal_shift == 'true'
+      run: |
+        gh issue create \
+          --title "🚨 Seasonal Drift Detected - Data Enrichment Required" \
+          --body "## Drift Monitoring Alert
 
-          # Replace placeholders
-          prompt = template.replace("{data_period_info}", json.dumps(drift_data['detailed_analysis'], indent=2)) \
-                           .replace("{drift_detection_results}", "") \
-                           .replace("{top_drifting_features}", "")
+        The drift monitoring agent has detected significant seasonal shifts in the AQI prediction features.
 
-          response = model.generate_content(
-              prompt,
-              generation_config=genai.types.GenerationConfig(
-                  temperature=0.1,
-                  max_output_tokens=500,
-                  response_mime_type='application/json'
-              )
-          )
+        **Drift Analysis Results:**
+        - Seasonal shift detected: ✅ True
+        - Features to add: ${{ steps.llm_analysis.outputs.features_count }}
+        - Timestamp: $(date)
 
-          llm_output = json.loads(response.text)
+        **Next Steps:**
+        1. Data enrichment workflow triggered automatically
+        2. Review suggested features in \`agents/drift_monitoring_agent/outputs/drift_report.json\`
+        3. Monitor data collection for new features
 
-          with open('agents/drift_monitoring_agent/outputs/drift_report.json', 'w') as f:
-              json.dump(llm_output, f, indent=2)
+        **Files Updated:**
+        - \`agents/drift_monitoring_agent/outputs/drift_analysis.json\`
+        - \`agents/drift_monitoring_agent/outputs/drift_report.json\`
 
-          print(f'::set-output name=seasonal_shift::{llm_output["seasonal_shift_detected"]}')
-          print(f'::set-output name=features_count::{len(llm_output["features_to_add"])}')
-          EOF
+        This issue will auto-close when the data enrichment workflow completes successfully." \
+          --label "drift-alert,automated,high-priority"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Validate Drift Report
-        if: steps.check_data.outputs.data_exists == 'true'
-        run: |
-          python - <<EOF
-          import json
-          import jsonschema
-
-          schema = {
-              'type': 'object',
-              'properties': {
-                  'seasonal_shift_detected': {'type': 'boolean'},
-                  'features_to_add': {'type': 'array', 'items': {'type': 'string'}},
-                  'reasoning': {'type': 'string'}
-              },
-              'required': ['seasonal_shift_detected', 'features_to_add', 'reasoning']
-          }
-
-          with open('agents/drift_monitoring_agent/outputs/drift_report.json') as f:
-              report = json.load(f)
-
-          jsonschema.validate(report, schema)
-          print('✅ Drift report validation successful')
-          print(f'Seasonal shift detected: {report["seasonal_shift_detected"]}')
-          print(f'Features to add: {len(report["features_to_add"])}')
-          EOF
-
-      - name: Commit drift analysis results
-        if: steps.check_data.outputs.data_exists == 'true'
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add agents/drift_monitoring_agent/outputs/
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "🤖 Drift analysis results - $(date '+%Y-%m-%d %H:%M')"
-            git push
-          fi
-
-      - name: Trigger Data Enrichment
-        if: steps.check_data.outputs.data_exists == 'true' && steps.llm_analysis.outputs.seasonal_shift == 'true'
-        uses: peter-evans/repository-dispatch@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          event-type: trigger-data-enrichment
-          client-payload: '{"drift_detected": true, "features_needed": ${{ steps.llm_analysis.outputs.features_count }}}'
-
-      - name: Create Issue if Drift Detected
-        if: steps.check_data.outputs.data_exists == 'true' && steps.llm_analysis.outputs.seasonal_shift == 'true'
-        run: |
-          curl -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/${{ github.repository }}/issues \
-            -d @- <<EOF
-      {
-        "title": "🚨 Seasonal Drift Detected - Data Enrichment Required",
-        "body": "## Drift Monitoring Alert\n\nThe drift monitoring agent has detected significant seasonal shifts in the AQI prediction features.\n\n**Drift Analysis Results:**\n- Seasonal shift detected: ✅ True\n- Features to add: ${{ steps.llm_analysis.outputs.features_count }}\n- Timestamp: $(date)\n\n**Next Steps:**\n1. Data enrichment workflow triggered automatically\n2. Review suggested features in agents/drift_monitoring_agent/outputs/drift_report.json\n3. Monitor data collection for new features\n\n**Files Updated:**\n- agents/drift_monitoring_agent/outputs/drift_analysis.json\n- agents/drift_monitoring_agent/outputs/drift_report.json\n\nThis issue will auto-close when the data enrichment workflow completes successfully.",
-        "labels": ["drift-alert", "automated", "high-priority"]
-      }
-          EOF
-
-      - name: Summary
-        if: always()
-        run: |
-          echo "## Drift Monitoring Summary" >> $GITHUB_STEP_SUMMARY
-          echo "- Data file exists: ${{ steps.check_data.outputs.data_exists }}" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ steps.check_data.outputs.data_exists }}" = "true" ]; then
-            echo "- Seasonal shift detected: ${{ steps.llm_analysis.outputs.seasonal_shift }}" >> $GITHUB_STEP_SUMMARY
-            echo "- Features recommended: ${{ steps.llm_analysis.outputs.features_count }}" >> $GITHUB_STEP_SUMMARY
-            echo "- Next workflow: $([ "${{ steps.llm_analysis.outputs.seasonal_shift }}" = "true" ] && echo "Data Enrichment Triggered" || echo "No action needed")" >> $GITHUB_STEP_SUMMARY
-          fi
+    - name: Summary
+      if: always()
+      run: |
+        echo "## Drift Monitoring Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- Data file exists: ${{ steps.check_data.outputs.data_exists }}" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ steps.check_data.outputs.data_exists }}" = "true" ]; then
+          echo "- Seasonal shift detected: ${{ steps.llm_analysis.outputs.seasonal_shift }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Features recommended: ${{ steps.llm_analysis.outputs.features_count }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Next workflow: $([ "${{ steps.llm_analysis.outputs.seasonal_shift }}" = "true" ] && echo "Data Enrichment Triggered" || echo "No action needed")" >> $GITHUB_STEP_SUMMARY
+        fi
