@@ -1,9 +1,9 @@
 name: Daily Data Collection
 
 on:
-  push:
-    branches:
-      - main             # Triggers when code is pushed to main
+  # push:
+  #   branches:
+  #     - main             # Triggers when code is pushed to main
   schedule:
     - cron: "0 9 * * *"  # Runs daily at 9 AM UTC == 2 PM PKT
   workflow_dispatch:     # Allows manual triggering from GitHub UI
