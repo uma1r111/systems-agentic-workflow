@@ -187,24 +187,61 @@ Baseline Period (90 days): {baseline_data.index.min()} to {baseline_data.index.m
     
     def run_analysis(self, csv_path: str, output_path: str = None) -> Dict[str, Any]:
         """Run complete drift analysis"""
+        # Load data
         df = self.load_data(csv_path)
+        
+        # Detect drift
         drift_results = self.detect_seasonal_shifts(df)
+        
+        # Generate feature recommendations
         feature_recommendations = self.generate_feature_recommendations(drift_results)
+        
+        # Generate LLM prompt
         llm_prompt = self.create_llm_prompt(df, drift_results)
         
+        # Map engineered features to base categories
+        pollutants = ['pm2_5', 'pm10', 'co', 'no2', 'so2', 'o3']
+        weather_features = ['temp', 'humidity', 'wind', 'precip']
+
+        all_features = self.raw_features + \
+                    self.engineered_features['logged'] + \
+                    self.engineered_features['scaled'] + \
+                    self.engineered_features['lags'] + \
+                    self.engineered_features['interactions']
+        
+        derived_mapping = {}
+        for feat in all_features:
+            for base in pollutants + weather_features:
+                if base in feat:
+                    derived_mapping[feat] = base
+                    break
+
+        # Determine focus of recommendations
+        significant_drifts = drift_results['significant_drifts']
+        focus = "pollutant" if any(
+            derived_mapping.get(d['feature'], '') in pollutants for d in significant_drifts
+        ) else "weather"
+
+        # Build output
         output = {
             "seasonal_shift_detected": drift_results['drift_detected'],
             "features_to_add": feature_recommendations,
-            "reasoning": f"Detected {len(drift_results['significant_drifts'])} features with significant drift. "
-                        f"Recommendations focus on {'pollutant' if any('pm' in str(drift_results['significant_drifts']) or 'co' in str(drift_results['significant_drifts'])) else 'weather'} "
-                        f"and temporal pattern improvements.",
+            "reasoning": f"Detected {len(significant_drifts)} features with significant drift. "
+                        f"Recommendations focus on {focus} and temporal pattern improvements.",
             "detailed_analysis": {
                 "drift_metrics": drift_results['all_metrics'],
-                "significant_drifts": drift_results['significant_drifts'],
+                "significant_drifts": significant_drifts,
                 "llm_prompt": llm_prompt
             }
         }
-        
+
+        # Save results if output_path provided
+        if output_path:
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            with open(output_path, 'w') as f:
+                json.dump(output, f, indent=2, default=str)
+
+        return output        
         if output_path:
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
             with open(output_path, 'w') as f:
