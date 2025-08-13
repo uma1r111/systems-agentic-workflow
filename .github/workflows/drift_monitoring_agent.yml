@@ -1,13 +1,13 @@
 name: Drift Monitoring Agent
 
 on:
-  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - main             # Triggers when code is pushed to main
   schedule:
-    - cron: '0 6 * * *' # Daily at 6 AM UTC (11 AM Karachi time)
-  workflow_run:
-    workflows: ["Feature Engineering"]
-    types:
-      - completed
+    - cron: "0 10 * * *"  # Runs daily at 10 AM UTC == 3 PM PKT
+  workflow_dispatch:     # Allows manual triggering from GitHub UI
+  
 
 env:
   GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
