@@ -40,10 +40,10 @@ class DriftMonitoringAgent:
         
         # Convert datetime column (adjust column name as needed)
         if 'datetime' in df.columns:
-            df['datetime'] = pd.to_datetime(df['datetime'])
+            df['datetime'] = pd.to_datetime(df['datetime'], dayfirst=True)  # <-- add dayfirst=True
             df.set_index('datetime', inplace=True)
         elif 'date' in df.columns:
-            df['date'] = pd.to_datetime(df['date'])
+            df['date'] = pd.to_datetime(df['date'], dayfirst=True)  # <-- add dayfirst=True
             df.set_index('date', inplace=True)
         
         return df.sort_index()
