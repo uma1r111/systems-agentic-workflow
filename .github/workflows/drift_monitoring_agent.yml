@@ -66,16 +66,44 @@ jobs:
           git push
         fi
 
-    - name: Summary
-      if: steps.check_data.outputs.data_exists == 'true'
-      run: |
-        python -c "
-import json
-with open('agents/drift_monitoring_agent/outputs/drift_analysis.json', 'r') as f:
-    data = json.load(f)
+    # - name: Create Issue if Drift Detected
+    #   if: steps.check_data.outputs.data_exists == 'true'
+    #   run: |
+    #     SEASONAL_SHIFT=$(jq -r '.seasonal_shift_detected' agents/drift_monitoring_agent/outputs/drift_analysis.json)
+    #     FEATURES_COUNT=$(jq '.features_to_add | length' agents/drift_monitoring_agent/outputs/drift_analysis.json)
+        
+    #     if [ "$SEASONAL_SHIFT" = "true" ]; then
+    #       gh issue create \
+    #         --title "🚨 Seasonal Drift Detected - Data Enrichment Required" \
+    #         --body "## Drift Monitoring Alert
 
-print('## Drift Monitoring Summary', flush=True)
-print(f'- Data file exists: True', flush=True)
-print(f'- Seasonal shift detected: {data[\"seasonal_shift_detected\"]}', flush=True)
-print(f'- Features recommended: {len(data[\"features_to_add\"])}', flush=True)
-        "
+# The drift monitoring agent has detected significant seasonal shifts in the AQI prediction features.
+
+# **Drift Analysis Results:**
+# - Seasonal shift detected: ✅ True
+# - Features to add: $FEATURES_COUNT
+# - Timestamp: $(date)
+
+# **Next Steps:**
+# 1. Data enrichment workflow triggered automatically
+# 2. Review suggested features in \`agents/drift_monitoring_agent/outputs/drift_analysis.json\`
+# 3. Monitor data collection for new features
+
+# **Files Updated:**
+# - \`agents/drift_monitoring_agent/outputs/drift_analysis.json\`
+
+# This issue will auto-close when the data enrichment workflow completes successfully." \
+#             --label "drift-alert,automated,high-priority"
+#         fi
+
+    - name: Summary
+      if: always()
+      run: |
+        echo "## Drift Monitoring Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- Data file exists: ${{ steps.check_data.outputs.data_exists }}" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ steps.check_data.outputs.data_exists }}" = "true" ]; then
+          SEASONAL_SHIFT=$(jq -r '.seasonal_shift_detected' agents/drift_monitoring_agent/outputs/drift_analysis.json)
+          FEATURES_COUNT=$(jq '.features_to_add | length' agents/drift_monitoring_agent/outputs/drift_analysis.json)
+          echo "- Seasonal shift detected: $SEASONAL_SHIFT" >> $GITHUB_STEP_SUMMARY
+          echo "- Features recommended: $FEATURES_COUNT" >> $GITHUB_STEP_SUMMARY
+        fi
