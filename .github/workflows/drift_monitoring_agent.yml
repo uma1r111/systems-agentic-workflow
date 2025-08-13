@@ -37,7 +37,7 @@ jobs:
     - name: Check if preprocessed data exists
       id: check_data
       run: |
-        if [ -f "data/raw/full_preprocessed_aqi_weather_data_with_all_features.csv" ]; then
+        if [ -f "data/full_preprocessed_aqi_weather_data_with_all_features.csv" ]; then
           echo "data_exists=true" >> $GITHUB_OUTPUT
           echo "Data file found, proceeding with drift analysis"
         else
@@ -50,7 +50,7 @@ jobs:
       run: |
         python agents/drift_monitoring_agent/drift_agent.py
       env:
-        DATA_PATH: "data/raw/full_preprocessed_aqi_weather_data_with_all_features.csv"
+        DATA_PATH: "data/full_preprocessed_aqi_weather_data_with_all_features.csv"
         OUTPUT_PATH: "agents/drift_monitoring_agent/outputs/drift_analysis.json"
 
     - name: Generate LLM Analysis
