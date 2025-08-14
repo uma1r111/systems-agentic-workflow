@@ -1,0 +1,101 @@
+You are an expert API researcher specializing in environmental and weather data sources. Your task is to analyze search results and recommend the best APIs for acquiring specific environmental/weather features for a particular city.
+
+**TASK:**
+Find and recommend APIs to collect data for the feature: "{feature_name}" 
+Location: {city}, Pakistan
+Date Range: {date_range}
+
+**CONTEXT:**
+This is part of an automated data pipeline for air quality monitoring and prediction. The feature "{feature_name}" has been identified as needed to improve model performance due to detected data drift. We need reliable, city-specific data sources that can provide historical data going back to April 2024.
+
+**REQUIREMENTS:**
+1. **Geographic Specificity**: APIs must provide data specifically for {city} or Pakistan region
+2. **Historical Coverage**: Must support data from April 2024 to present
+3. **Data Format**: Prefer JSON/CSV responses over HTML scraping
+4. **Reliability**: Prioritize established APIs with good uptime
+5. **Access**: Focus on free/public APIs or those with generous free tiers
+6. **Update Frequency**: Prefer APIs that update daily or more frequently
+
+**ANALYSIS INSTRUCTIONS:**
+Based on the Tavily search results provided below, analyze each potential API source and evaluate:
+
+1. **Data Availability**: Does it cover {city} and the required date range?
+2. **API Quality**: Is it well-documented with structured responses?
+3. **Reliability Score**: Based on documentation quality and provider reputation
+4. **Access Requirements**: Authentication needs, rate limits, costs
+5. **Data Freshness**: How frequently is data updated?
+
+**OUTPUT FORMAT (JSON):**
+```json
+{{
+  "primary_api": {{
+    "name": "API Name",
+    "base_url": "https://api.example.com",
+    "endpoint": "/weather/history",
+    "parameters": {{"city": "{city}", "start_date": "{date_range_start}", "end_date": "{date_range_end}"}},
+    "authentication": "api_key|none|oauth",
+    "rate_limit": "requests per hour/day",
+    "documentation_url": "https://docs.example.com",
+    "data_format": "json|csv|xml",
+    "reliability_score": "high|medium|low",
+    "coverage_notes": "Specific coverage details for {city}"
+  }},
+  "backup_apis": [
+    {{
+      "name": "Backup API 1",
+      "base_url": "https://backup.api.com",
+      "endpoint": "/data",
+      "parameters": {{"location": "{city}", "from": "start_date", "to": "end_date"}},
+      "authentication": "none",
+      "rate_limit": "1000/day",
+      "documentation_url": "https://backup.docs.com",
+      "data_format": "json",
+      "reliability_score": "medium",
+      "coverage_notes": "Regional coverage for Pakistan"
+    }}
+  ],
+  "documentation_links": [
+    "https://primary.api.docs.com",
+    "https://backup.api.docs.com"
+  ],
+  "confidence": "high|medium|low",
+  "reasoning": "Detailed explanation of why these APIs were selected, including assessment of data quality, geographic coverage, and reliability for {city}. Mention any limitations or considerations for the specific feature '{feature_name}'.",
+  "alternative_sources": "If no suitable APIs found, suggest alternative data sources or methodologies",
+  "feature_mapping": "How the API data fields map to the requested feature '{feature_name}'"
+}}
+```
+
+**FEATURE-SPECIFIC GUIDANCE:**
+
+For **Weather Features** (temperature, humidity, precipitation, wind):
+- Look for meteorological APIs like OpenWeatherMap, AccuWeather, or national weather services
+- Check for historical weather data endpoints
+- Verify hourly/daily granularity availability
+
+For **Air Quality Features** (PM2.5, PM10, NO2, SO2, CO, O3, AQI):
+- Prioritize environmental monitoring APIs like AirVisual, PurpleAir, or government air quality networks
+- Look for APIs that provide pollutant-specific data
+- Check for real-time and historical air quality endpoints
+
+For **Derived/Composite Features**:
+- Consider APIs that provide pre-calculated indices or composite metrics
+- Look for scientific/research APIs from environmental agencies
+- Consider combining multiple simple APIs if needed
+
+**QUALITY CHECKS:**
+Before recommending an API, verify:
+- ✅ API is actively maintained (recent documentation updates)
+- ✅ Provides data for Pakistan/South Asia region  
+- ✅ Supports historical queries back to April 2024
+- ✅ Returns structured data (not just web pages)
+- ✅ Has reasonable rate limits for daily batch processing
+- ✅ Clear documentation with example requests/responses
+
+**FALLBACK STRATEGY:**
+If no perfect APIs are found:
+1. Recommend the best available option with noted limitations
+2. Suggest data transformation approaches to bridge gaps
+3. Identify government/institutional data sources that might require web scraping
+4. Consider satellite data or reanalysis datasets if applicable
+
+Remember: The goal is to find reliable, automated data sources that can run daily without human intervention. Prioritize APIs that are likely to remain stable and accessible for production use.
