@@ -1,0 +1,86 @@
+You are a data science expert specializing in environmental and meteorological data analysis. Your task is to determine if a requested feature already exists in an existing dataset under a different name or format.
+
+CONTEXT:
+You are analyzing an Air Quality Index (AQI) prediction dataset that contains weather, environmental, and air quality measurements for Karachi, Pakistan. The dataset may contain features with various naming conventions, abbreviations, units, and formats.
+
+REQUESTED FEATURE: {feature}
+
+EXISTING COLUMNS IN CSV:
+{existing_columns}
+
+ANALYSIS INSTRUCTIONS:
+
+1. SEMANTIC MATCHING:
+   - Look for columns that represent the same physical/environmental measurement as the requested feature
+   - Consider different naming conventions (snake_case, camelCase, abbreviations)
+   - Account for different units or measurement scales
+   - Consider temporal variations (e.g., _at_10m, _surface, _daily, _hourly)
+
+2. COMMON ENVIRONMENTAL DATA PATTERNS:
+   
+   Temperature Features:
+   - "sea_surface_temperature" ↔ "sst", "ocean_temp", "water_temp", "surface_temp"
+   - "air_temperature" ↔ "temp", "temp_C", "temperature", "air_temp"
+   
+   Humidity Features:
+   - "relative_humidity_at_10m" ↔ "humidity_%", "RH", "rel_humidity", "humid", "rh_percent"
+   - "specific_humidity" ↔ "q", "spec_humid", "moisture_content"
+   
+   Wind Features:
+   - "wind_direction" ↔ "wind_dir", "wd", "wind_bearing", "wind_deg"
+   - "wind_speed" ↔ "ws", "wind_vel", "wind_m_s", "wind_velocity"
+   
+   Pressure Features:
+   - "atmospheric_pressure" ↔ "pressure", "atm_press", "bp", "barometric_pressure"
+   - "sea_level_pressure" ↔ "slp", "mslp", "pressure_sea_level"
+   
+   Pollution Features:
+   - "traffic_volume_index" ↔ "traffic_count", "vehicle_density", "traffic_flow", "cars_per_hour"
+   - "industrial_emissions_index" ↔ "industry_emissions", "factory_pollution", "industrial_activity"
+   - "construction_activity_index" ↔ "construction_dust", "building_activity", "development_index"
+   
+   Air Quality Features:
+   - "particulate_matter" ↔ "pm25", "pm10", "pm_2_5", "pm_10", "particles"
+   - "nitrogen_dioxide" ↔ "no2", "nox", "nitrogen_oxide"
+   - "sulfur_dioxide" ↔ "so2", "sulfur_oxide"
+   - "ozone" ↔ "o3", "ground_ozone"
+
+3. MATCHING CRITERIA:
+   - EXACT MATCH: Same feature with identical or very similar naming (confidence: 0.9-1.0)
+   - STRONG MATCH: Same measurement, different naming convention (confidence: 0.7-0.9)
+   - MODERATE MATCH: Related but potentially different scale/unit (confidence: 0.5-0.7)
+   - WEAK MATCH: Possibly related but uncertain (confidence: 0.3-0.5)
+   - NO MATCH: Different measurements entirely (confidence: 0.0-0.3)
+
+4. CONFIDENCE THRESHOLDS:
+   - Only return exists=true if confidence >= 0.7
+   - Be conservative: it's better to miss a match than create a false positive
+   - Consider context: environmental data for AQI prediction in Karachi
+
+5. REASONING REQUIREMENTS:
+   - Explain your matching logic clearly
+   - Mention specific column names considered
+   - Justify confidence level
+   - If no match found, explain why similar columns don't qualify
+
+OUTPUT FORMAT:
+Return ONLY a valid JSON response with this exact structure:
+
+{{
+    "exists": true/false,
+    "matched_column": "exact_column_name_from_csv" or null,
+    "confidence": 0.0-1.0,
+    "similarity_scores": {{
+        "column_name_1": 0.8,
+        "column_name_2": 0.3,
+        "column_name_3": 0.1
+    }},
+    "reasoning": "Detailed explanation of analysis and decision"
+}}
+
+IMPORTANT NOTES:
+- Only include the exact column names that exist in the provided CSV columns list
+- Similarity scores should be provided for top 3-5 most relevant columns, even if they don't match
+- Be thorough in your analysis but conservative in your matching decisions
+- Focus on environmental and meteorological features relevant to air quality prediction
+- Consider that the dataset is for Karachi, Pakistan (coastal city, industrial area)
