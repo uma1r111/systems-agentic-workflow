@@ -176,30 +176,6 @@ class CollectionState(TypedDict):
 # - error_logger_node: Log failed API calls with details
 ```
 
-## 🔄 Pipeline Integration Flow
-
-```mermaid
-sequenceDiagram
-    participant DE as Data Engineering
-    participant CSV as feature_engineering.csv
-    participant A1 as Drift Monitor Agent
-    participant A2 as API Discovery Agent  
-    participant A3 as Data Collection Agent
-    participant FS as Feature Selection
-    
-    DE->>CSV: Generate engineered features
-    CSV->>A1: Trigger drift analysis
-    A1->>A1: Analyze drift + LLM suggestions
-    A1->>A2: Pass drift_analysis.json
-    A2->>A2: Check existing features (LLM)
-    A2->>A2: Find APIs (LLM + Tavily)
-    A2->>A3: Pass discovered_apis.json
-    A3->>A3: Collect data from APIs
-    A3->>A3: Validate + LLM fix data
-    A3->>CSV: Integrate new features
-    CSV->>FS: Enhanced feature set
-```
-
 ## 🛠️ Running the Agentic Workflow
 
 ### Full Pipeline Integration
