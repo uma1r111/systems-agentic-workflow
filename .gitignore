@@ -1,1 +1,2 @@
 /.env
+/agents/langgraph_agents/discovery_agent/__pycache__
