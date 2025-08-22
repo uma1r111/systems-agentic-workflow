@@ -5,201 +5,201 @@
     "traffic_volume_index",
     "industrial_emissions_index",
     "sea_surface_temperature",
-    "relative_humidity_at_10m",
-    "wind_direction"
+    "wind_direction",
+    "relative_humidity_daily_avg"
   ],
-  "reasoning": "Analysis of drift detection results reveals significant mean/variance shifts (>15%) in pm2_5, pm10, and o3, coupled with a KS statistic >0.2, indicating substantial distribution changes.  These shifts coincide with the start of the monsoon season in Karachi, suggesting a disruption in typical seasonal patterns.  The high correlation between these pollutants and the engineered features 'rolling_avg_windspeed' and 'lag_1_pm2_5' further supports this. To improve prediction accuracy, we recommend adding raw features capturing the impact of monsoon season and urban factors.  'construction_activity_index' and 'traffic_volume_index' will account for increased urban pollution. 'industrial_emissions_index' will capture industrial activity changes. 'sea_surface_temperature' and 'relative_humidity_at_10m' will capture coastal influences and monsoon humidity. 'wind_direction' will help model the altered wind patterns during the monsoon.",
+  "reasoning": "Analysis of drift detection results reveals significant mean/variance shifts exceeding 15% in pm2_5, pm10, and o3, alongside a notable distribution change (KS statistic > 0.2) in pm2_5.  These shifts coincide with the onset of the monsoon season in Karachi, indicating a disruption in typical seasonal patterns.  The high correlation between these pollutants and humidity suggests a need for more granular humidity data (relative_humidity_daily_avg). To account for the urban context, adding construction_activity_index, traffic_volume_index, and industrial_emissions_index will improve prediction accuracy.  Sea_surface_temperature and wind_direction are included to capture coastal influences and their impact on pollutant dispersion.",
   "detailed_analysis": {
     "drift_metrics": {
       "temp_C": {
-        "mean_shift": 0.046088197663668284,
-        "variance_shift": 0.5101487388112143,
-        "ks_statistic": 0.39259711562420424
+        "mean_shift": 0.04837683317740459,
+        "variance_shift": 0.5028272799488612,
+        "ks_statistic": 0.41616718098403926
       },
       "humidity_%": {
-        "mean_shift": 0.1281184653177415,
-        "variance_shift": 0.558148010714956,
-        "ks_statistic": 0.4254906094866227
+        "mean_shift": 0.13466380842294567,
+        "variance_shift": 0.5527199523979499,
+        "ks_statistic": 0.44813517739157577
       },
       "windspeed_kph": {
-        "mean_shift": 0.4962791470452508,
-        "variance_shift": 0.4931693109818129,
-        "ks_statistic": 0.652626304390089
+        "mean_shift": 0.506987657010026,
+        "variance_shift": 0.4842324544123742,
+        "ks_statistic": 0.664983612123469
       },
       "precip_mm": {
-        "mean_shift": 20.796780038806297,
-        "variance_shift": 31.432027662862723,
-        "ks_statistic": 0.221779857561013
+        "mean_shift": 32.54417023460175,
+        "variance_shift": 44.707908094540834,
+        "ks_statistic": 0.3342058930639716
       },
       "pm10": {
-        "mean_shift": 0.28902070543091085,
-        "variance_shift": 0.8644369082312547,
-        "ks_statistic": 0.3475763193130509
+        "mean_shift": 0.32930807883255375,
+        "variance_shift": 0.8237280466595249,
+        "ks_statistic": 0.3614642574525819
       },
       "pm2_5": {
-        "mean_shift": 0.02085982791521501,
-        "variance_shift": 0.6260628078429296,
-        "ks_statistic": 0.17854434036401073
+        "mean_shift": 0.04183318770800202,
+        "variance_shift": 0.4182814311295241,
+        "ks_statistic": 0.20155855961928648
       },
       "co": {
-        "mean_shift": 1.0147616497622156,
-        "variance_shift": 37.50750437939235,
-        "ks_statistic": 0.5577162665761249
+        "mean_shift": 1.5701807343513154,
+        "variance_shift": 56.7570408644423,
+        "ks_statistic": 0.5762946696275284
       },
       "no2": {
-        "mean_shift": 0.9118562165900302,
-        "variance_shift": 1.8969466146195673,
-        "ks_statistic": 0.4527626646659858
+        "mean_shift": 1.1015358666871702,
+        "variance_shift": 2.9279514349966,
+        "ks_statistic": 0.4668121541363986
       },
       "so2": {
-        "mean_shift": 0.4967955792253321,
-        "variance_shift": 0.7613452335965007,
-        "ks_statistic": 0.5279415348471697
+        "mean_shift": 0.5218251485797385,
+        "variance_shift": 0.7968089229981339,
+        "ks_statistic": 0.5292312073360733
       },
       "o3": {
-        "mean_shift": 0.013986521693238128,
-        "variance_shift": 2.532514370756788,
-        "ks_statistic": 0.36475552354952917
+        "mean_shift": 0.019699275652294942,
+        "variance_shift": 2.5551833321647885,
+        "ks_statistic": 0.3118652607137283
       },
       "log_co": {
-        "mean_shift": 0.09606939962113101,
-        "variance_shift": 2.2805799298612652,
-        "ks_statistic": 0.5577162665761249
+        "mean_shift": 0.1251493190968641,
+        "variance_shift": 3.9897304789581614,
+        "ks_statistic": 0.5762946696275284
       },
       "log_pm2_5": {
-        "mean_shift": 0.01258019810896984,
-        "variance_shift": 0.566317922331148,
-        "ks_statistic": 0.17854434036401073
+        "mean_shift": 0.01504727375493544,
+        "variance_shift": 0.13047745379708678,
+        "ks_statistic": 0.20592044555309424
       },
       "log_pm10": {
-        "mean_shift": 0.0658948660915177,
-        "variance_shift": 0.5672379348933679,
-        "ks_statistic": 0.3503528116776969
+        "mean_shift": 0.08615309829617035,
+        "variance_shift": 0.15644500389892446,
+        "ks_statistic": 0.3637780010897869
       },
       "log_precip_mm": {
-        "mean_shift": 17.089271961477003,
-        "variance_shift": 19.98824186253404,
-        "ks_statistic": 0.221779857561013
+        "mean_shift": 26.494452178989178,
+        "variance_shift": 27.96941725030698,
+        "ks_statistic": 0.3342058930639716
       },
       "log_so2": {
-        "mean_shift": 0.15043979720107953,
-        "variance_shift": 0.0757041578165352,
-        "ks_statistic": 0.5333959458830423
+        "mean_shift": 0.15634843996656791,
+        "variance_shift": 0.05775895010476516,
+        "ks_statistic": 0.534685618371946
       },
       "log_windspeed_kph": {
-        "mean_shift": 0.23426960043159276,
-        "variance_shift": 0.7529336856280808,
-        "ks_statistic": 0.6586721575864779
+        "mean_shift": 0.24305269354287504,
+        "variance_shift": 0.8141642902301747,
+        "ks_statistic": 0.664983612123469
       },
       "log_no2": {
-        "mean_shift": 0.2504431585764497,
-        "variance_shift": 0.31375361157415993,
-        "ks_statistic": 0.4539838832011259
+        "mean_shift": 0.2816241706379843,
+        "variance_shift": 0.4254333183123106,
+        "ks_statistic": 0.46803337267153877
       },
       "scaled_temp_C": {
-        "mean_shift": 1.0590934660001277,
-        "variance_shift": 0.3284090428930885,
-        "ks_statistic": 0.1865589292706368
+        "mean_shift": 1.043990933441359,
+        "variance_shift": 0.31690001674897234,
+        "ks_statistic": 0.1828569394511088
       },
       "scaled_humidity_%": {
-        "mean_shift": 0.959417316513979,
-        "variance_shift": 0.24309757742213453,
-        "ks_statistic": 0.11177435386313042
+        "mean_shift": 0.9673946878817173,
+        "variance_shift": 0.23084424018836314,
+        "ks_statistic": 0.10735222845001081
       },
       "scaled_log_windspeed_kph": {
-        "mean_shift": 1.149907217898308,
-        "variance_shift": 0.18061307908412694,
-        "ks_statistic": 0.1462614557691623
+        "mean_shift": 1.0718507704501263,
+        "variance_shift": 0.15817244722429044,
+        "ks_statistic": 0.1358153824248581
       },
       "scaled_log_pm2_5": {
-        "mean_shift": 0.9994578016576754,
-        "variance_shift": 0.1570081395614045,
-        "ks_statistic": 0.11153339594588305
+        "mean_shift": 0.9932512088070813,
+        "variance_shift": 0.1490988240575487,
+        "ks_statistic": 0.10799021929908628
       },
       "scaled_log_pm10": {
-        "mean_shift": 0.9989668604267234,
-        "variance_shift": 0.12288048895723852,
-        "ks_statistic": 0.12250245749694011
+        "mean_shift": 1.011803279800217,
+        "variance_shift": 0.11965361750914165,
+        "ks_statistic": 0.10521372693444028
       },
       "scaled_log_precip_mm": {
-        "mean_shift": 0.9999999999999998,
-        "variance_shift": 0.5854415566433421,
-        "ks_statistic": 0.29897948845729433
+        "mean_shift": 1.0,
+        "variance_shift": 0.4471142010441489,
+        "ks_statistic": 0.27070252923668364
       },
       "scaled_log_co": {
-        "mean_shift": 1.0312151308816333,
-        "variance_shift": 0.1642925935107729,
-        "ks_statistic": 0.1388273563904504
+        "mean_shift": 0.9689537849240664,
+        "variance_shift": 0.15366163053863108,
+        "ks_statistic": 0.136521827227697
       },
       "scaled_log_no2": {
-        "mean_shift": 1.079647594701044,
-        "variance_shift": 0.06594965032620934,
-        "ks_statistic": 0.15610239616219754
+        "mean_shift": 1.0545424284642404,
+        "variance_shift": 0.057651928084471706,
+        "ks_statistic": 0.13247209132305063
       },
       "scaled_log_so2": {
-        "mean_shift": 1.3650868067891138,
-        "variance_shift": 0.068885013210873,
-        "ks_statistic": 0.08321262619486376
+        "mean_shift": 0.6389892636486275,
+        "variance_shift": 0.06205199553698019,
+        "ks_statistic": 0.07627139528324876
       },
       "scaled_o3": {
-        "mean_shift": 0.914229997633007,
-        "variance_shift": 0.17558083485278525,
-        "ks_statistic": 0.10431013474476258
+        "mean_shift": 0.9422867710684313,
+        "variance_shift": 0.1662069854216391,
+        "ks_statistic": 0.09839297498144897
       },
       "aqi_us_lag1": {
-        "mean_shift": 0.01020675285811881,
-        "variance_shift": 0.5259707783033394,
-        "ks_statistic": 0.24409584648790145
+        "mean_shift": 0.04017264661901878,
+        "variance_shift": 0.5725977975729558,
+        "ks_statistic": 0.2799629801018047
       },
       "aqi_us_lag12": {
-        "mean_shift": 0.010073445858622725,
-        "variance_shift": 0.6581223478504885,
-        "ks_statistic": 0.21312180148901042
+        "mean_shift": 0.02937785604796768,
+        "variance_shift": 0.5325390650830142,
+        "ks_statistic": 0.2850532161036557
       },
       "aqi_us_lag24": {
-        "mean_shift": 0.02864809508803179,
-        "variance_shift": 0.6286772758512476,
-        "ks_statistic": 0.24574969401082666
+        "mean_shift": 0.011250234567049195,
+        "variance_shift": 0.5279316339252559,
+        "ks_statistic": 0.24363309776046044
       },
       "scaled_log_pm2_5_lag1": {
-        "mean_shift": 1.118126522047055,
-        "variance_shift": 0.12621341544477532,
-        "ks_statistic": 0.11153339594588305
+        "mean_shift": 1.0270822663737609,
+        "variance_shift": 0.14279874700054968,
+        "ks_statistic": 0.10752747057164527
       },
       "scaled_log_pm2_5_lag12": {
-        "mean_shift": 1.227721160876222,
-        "variance_shift": 0.04951968956111104,
-        "ks_statistic": 0.08607400146217645
+        "mean_shift": 0.7710097785875443,
+        "variance_shift": 0.052385019714479966,
+        "ks_statistic": 0.08971575180239261
       },
       "scaled_log_pm2_5_lag24": {
-        "mean_shift": 0.8516357643445988,
-        "variance_shift": 0.20675698236449247,
-        "ks_statistic": 0.0838424025694876
+        "mean_shift": 0.9994577602958314,
+        "variance_shift": 0.15700298815623742,
+        "ks_statistic": 0.11153339594588305
       },
       "scaled_log_pm10_lag1": {
-        "mean_shift": 1.0584834482148817,
-        "variance_shift": 0.10167411839743588,
-        "ks_statistic": 0.12203970876949911
+        "mean_shift": 1.0528553927871556,
+        "variance_shift": 0.117547643501445,
+        "ks_statistic": 0.11073659192407635
       },
       "scaled_log_pm10_lag12": {
-        "mean_shift": 0.846429194884069,
-        "variance_shift": 0.06223655148603025,
-        "ks_statistic": 0.09598887212527621
+        "mean_shift": 0.44840988976650076,
+        "variance_shift": 0.07369987489846754,
+        "ks_statistic": 0.09106566377060807
       },
       "scaled_log_pm10_lag24": {
-        "mean_shift": 0.904331952128981,
-        "variance_shift": 0.16738167612200408,
-        "ks_statistic": 0.09259081786045799
+        "mean_shift": 0.9989661045548052,
+        "variance_shift": 0.12271438793103226,
+        "ks_statistic": 0.12203970876949911
       },
       "hour_sin": {
-        "mean_shift": 11.78698225358615,
-        "variance_shift": 0.0007307073487756675,
-        "ks_statistic": 0.07005303812337593
+        "mean_shift": 11.786982253586105,
+        "variance_shift": 0.0007307073469152448,
+        "ks_statistic": 0.06912754066849393
       },
       "hour_cos": {
-        "mean_shift": 11.786982252347626,
-        "variance_shift": 0.010169288501779665,
-        "ks_statistic": 0.07187117513533346
+        "mean_shift": 11.786982252347649,
+        "variance_shift": 0.010169288499903424,
+        "ks_statistic": 0.07094567768045147
       },
       "hour": {
         "mean_shift": 0.005451888181554364,
@@ -207,8 +207,8 @@
         "ks_statistic": 0.005227143909377918
       },
       "day_of_week": {
-        "mean_shift": 0.001972386587771139,
-        "variance_shift": 0.009525976981598183,
+        "mean_shift": 0.0035603715170279006,
+        "variance_shift": 0.00835042465943736,
         "ks_statistic": 0.007097305926195685
       },
       "is_weekend": {
@@ -217,19 +217,19 @@
         "ks_statistic": 0.004731537284130457
       },
       "log_pm2_5_scaled_log_windspeed_kph": {
-        "mean_shift": 1.0354198708278994,
-        "variance_shift": 0.16389971549304097,
-        "ks_statistic": 0.1414751553220211
+        "mean_shift": 0.8401847643082364,
+        "variance_shift": 0.15093358159157624,
+        "ks_statistic": 0.13479131127655672
       },
       "scaled_temp_C_scaled_o3": {
-        "mean_shift": 1.2609902300758926,
-        "variance_shift": 0.09180404698355454,
-        "ks_statistic": 0.3282613517191526
+        "mean_shift": 0.9388089454592516,
+        "variance_shift": 0.13470375438271423,
+        "ks_statistic": 0.26025919405053
       },
       "scaled_temp_C_scaled_log_windspeed_kph": {
-        "mean_shift": 0.19551291784940122,
-        "variance_shift": 0.23923270698419877,
-        "ks_statistic": 0.15544250004791776
+        "mean_shift": 0.16492473565314547,
+        "variance_shift": 0.5044263242979978,
+        "ks_statistic": 0.1502208324548409
       }
     },
     "significant_drifts": [
@@ -237,372 +237,372 @@
         "feature": "temp_C",
         "drift_type": "variance_shift",
         "metrics": {
-          "mean_shift": 0.046088197663668284,
-          "variance_shift": 0.5101487388112143,
-          "ks_statistic": 0.39259711562420424
+          "mean_shift": 0.04837683317740459,
+          "variance_shift": 0.5028272799488612,
+          "ks_statistic": 0.41616718098403926
         }
       },
       {
         "feature": "humidity_%",
         "drift_type": "variance_shift",
         "metrics": {
-          "mean_shift": 0.1281184653177415,
-          "variance_shift": 0.558148010714956,
-          "ks_statistic": 0.4254906094866227
+          "mean_shift": 0.13466380842294567,
+          "variance_shift": 0.5527199523979499,
+          "ks_statistic": 0.44813517739157577
         }
       },
       {
         "feature": "windspeed_kph",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 0.4962791470452508,
-          "variance_shift": 0.4931693109818129,
-          "ks_statistic": 0.652626304390089
+          "mean_shift": 0.506987657010026,
+          "variance_shift": 0.4842324544123742,
+          "ks_statistic": 0.664983612123469
         }
       },
       {
         "feature": "precip_mm",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 20.796780038806297,
-          "variance_shift": 31.432027662862723,
-          "ks_statistic": 0.221779857561013
+          "mean_shift": 32.54417023460175,
+          "variance_shift": 44.707908094540834,
+          "ks_statistic": 0.3342058930639716
         }
       },
       {
         "feature": "pm10",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 0.28902070543091085,
-          "variance_shift": 0.8644369082312547,
-          "ks_statistic": 0.3475763193130509
+          "mean_shift": 0.32930807883255375,
+          "variance_shift": 0.8237280466595249,
+          "ks_statistic": 0.3614642574525819
         }
       },
       {
         "feature": "pm2_5",
         "drift_type": "variance_shift",
         "metrics": {
-          "mean_shift": 0.02085982791521501,
-          "variance_shift": 0.6260628078429296,
-          "ks_statistic": 0.17854434036401073
+          "mean_shift": 0.04183318770800202,
+          "variance_shift": 0.4182814311295241,
+          "ks_statistic": 0.20155855961928648
         }
       },
       {
         "feature": "co",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 1.0147616497622156,
-          "variance_shift": 37.50750437939235,
-          "ks_statistic": 0.5577162665761249
+          "mean_shift": 1.5701807343513154,
+          "variance_shift": 56.7570408644423,
+          "ks_statistic": 0.5762946696275284
         }
       },
       {
         "feature": "no2",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 0.9118562165900302,
-          "variance_shift": 1.8969466146195673,
-          "ks_statistic": 0.4527626646659858
+          "mean_shift": 1.1015358666871702,
+          "variance_shift": 2.9279514349966,
+          "ks_statistic": 0.4668121541363986
         }
       },
       {
         "feature": "so2",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 0.4967955792253321,
-          "variance_shift": 0.7613452335965007,
-          "ks_statistic": 0.5279415348471697
+          "mean_shift": 0.5218251485797385,
+          "variance_shift": 0.7968089229981339,
+          "ks_statistic": 0.5292312073360733
         }
       },
       {
         "feature": "o3",
         "drift_type": "variance_shift",
         "metrics": {
-          "mean_shift": 0.013986521693238128,
-          "variance_shift": 2.532514370756788,
-          "ks_statistic": 0.36475552354952917
+          "mean_shift": 0.019699275652294942,
+          "variance_shift": 2.5551833321647885,
+          "ks_statistic": 0.3118652607137283
         }
       },
       {
         "feature": "log_co",
         "drift_type": "variance_shift",
         "metrics": {
-          "mean_shift": 0.09606939962113101,
-          "variance_shift": 2.2805799298612652,
-          "ks_statistic": 0.5577162665761249
+          "mean_shift": 0.1251493190968641,
+          "variance_shift": 3.9897304789581614,
+          "ks_statistic": 0.5762946696275284
         }
       },
       {
         "feature": "log_pm2_5",
-        "drift_type": "variance_shift",
+        "drift_type": "distribution_shift",
         "metrics": {
-          "mean_shift": 0.01258019810896984,
-          "variance_shift": 0.566317922331148,
-          "ks_statistic": 0.17854434036401073
+          "mean_shift": 0.01504727375493544,
+          "variance_shift": 0.13047745379708678,
+          "ks_statistic": 0.20592044555309424
         }
       },
       {
         "feature": "log_pm10",
         "drift_type": "variance_shift",
         "metrics": {
-          "mean_shift": 0.0658948660915177,
-          "variance_shift": 0.5672379348933679,
-          "ks_statistic": 0.3503528116776969
+          "mean_shift": 0.08615309829617035,
+          "variance_shift": 0.15644500389892446,
+          "ks_statistic": 0.3637780010897869
         }
       },
       {
         "feature": "log_precip_mm",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 17.089271961477003,
-          "variance_shift": 19.98824186253404,
-          "ks_statistic": 0.221779857561013
+          "mean_shift": 26.494452178989178,
+          "variance_shift": 27.96941725030698,
+          "ks_statistic": 0.3342058930639716
         }
       },
       {
         "feature": "log_so2",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 0.15043979720107953,
-          "variance_shift": 0.0757041578165352,
-          "ks_statistic": 0.5333959458830423
+          "mean_shift": 0.15634843996656791,
+          "variance_shift": 0.05775895010476516,
+          "ks_statistic": 0.534685618371946
         }
       },
       {
         "feature": "log_windspeed_kph",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 0.23426960043159276,
-          "variance_shift": 0.7529336856280808,
-          "ks_statistic": 0.6586721575864779
+          "mean_shift": 0.24305269354287504,
+          "variance_shift": 0.8141642902301747,
+          "ks_statistic": 0.664983612123469
         }
       },
       {
         "feature": "log_no2",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 0.2504431585764497,
-          "variance_shift": 0.31375361157415993,
-          "ks_statistic": 0.4539838832011259
+          "mean_shift": 0.2816241706379843,
+          "variance_shift": 0.4254333183123106,
+          "ks_statistic": 0.46803337267153877
         }
       },
       {
         "feature": "scaled_temp_C",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 1.0590934660001277,
-          "variance_shift": 0.3284090428930885,
-          "ks_statistic": 0.1865589292706368
+          "mean_shift": 1.043990933441359,
+          "variance_shift": 0.31690001674897234,
+          "ks_statistic": 0.1828569394511088
         }
       },
       {
         "feature": "scaled_humidity_%",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 0.959417316513979,
-          "variance_shift": 0.24309757742213453,
-          "ks_statistic": 0.11177435386313042
+          "mean_shift": 0.9673946878817173,
+          "variance_shift": 0.23084424018836314,
+          "ks_statistic": 0.10735222845001081
         }
       },
       {
         "feature": "scaled_log_windspeed_kph",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 1.149907217898308,
-          "variance_shift": 0.18061307908412694,
-          "ks_statistic": 0.1462614557691623
+          "mean_shift": 1.0718507704501263,
+          "variance_shift": 0.15817244722429044,
+          "ks_statistic": 0.1358153824248581
         }
       },
       {
         "feature": "scaled_log_pm2_5",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 0.9994578016576754,
-          "variance_shift": 0.1570081395614045,
-          "ks_statistic": 0.11153339594588305
+          "mean_shift": 0.9932512088070813,
+          "variance_shift": 0.1490988240575487,
+          "ks_statistic": 0.10799021929908628
         }
       },
       {
         "feature": "scaled_log_pm10",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 0.9989668604267234,
-          "variance_shift": 0.12288048895723852,
-          "ks_statistic": 0.12250245749694011
+          "mean_shift": 1.011803279800217,
+          "variance_shift": 0.11965361750914165,
+          "ks_statistic": 0.10521372693444028
         }
       },
       {
         "feature": "scaled_log_precip_mm",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 0.9999999999999998,
-          "variance_shift": 0.5854415566433421,
-          "ks_statistic": 0.29897948845729433
+          "mean_shift": 1.0,
+          "variance_shift": 0.4471142010441489,
+          "ks_statistic": 0.27070252923668364
         }
       },
       {
         "feature": "scaled_log_co",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 1.0312151308816333,
-          "variance_shift": 0.1642925935107729,
-          "ks_statistic": 0.1388273563904504
+          "mean_shift": 0.9689537849240664,
+          "variance_shift": 0.15366163053863108,
+          "ks_statistic": 0.136521827227697
         }
       },
       {
         "feature": "scaled_log_no2",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 1.079647594701044,
-          "variance_shift": 0.06594965032620934,
-          "ks_statistic": 0.15610239616219754
+          "mean_shift": 1.0545424284642404,
+          "variance_shift": 0.057651928084471706,
+          "ks_statistic": 0.13247209132305063
         }
       },
       {
         "feature": "scaled_log_so2",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 1.3650868067891138,
-          "variance_shift": 0.068885013210873,
-          "ks_statistic": 0.08321262619486376
+          "mean_shift": 0.6389892636486275,
+          "variance_shift": 0.06205199553698019,
+          "ks_statistic": 0.07627139528324876
         }
       },
       {
         "feature": "scaled_o3",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 0.914229997633007,
-          "variance_shift": 0.17558083485278525,
-          "ks_statistic": 0.10431013474476258
+          "mean_shift": 0.9422867710684313,
+          "variance_shift": 0.1662069854216391,
+          "ks_statistic": 0.09839297498144897
         }
       },
       {
         "feature": "aqi_us_lag1",
         "drift_type": "variance_shift",
         "metrics": {
-          "mean_shift": 0.01020675285811881,
-          "variance_shift": 0.5259707783033394,
-          "ks_statistic": 0.24409584648790145
+          "mean_shift": 0.04017264661901878,
+          "variance_shift": 0.5725977975729558,
+          "ks_statistic": 0.2799629801018047
         }
       },
       {
         "feature": "aqi_us_lag12",
         "drift_type": "variance_shift",
         "metrics": {
-          "mean_shift": 0.010073445858622725,
-          "variance_shift": 0.6581223478504885,
-          "ks_statistic": 0.21312180148901042
+          "mean_shift": 0.02937785604796768,
+          "variance_shift": 0.5325390650830142,
+          "ks_statistic": 0.2850532161036557
         }
       },
       {
         "feature": "aqi_us_lag24",
         "drift_type": "variance_shift",
         "metrics": {
-          "mean_shift": 0.02864809508803179,
-          "variance_shift": 0.6286772758512476,
-          "ks_statistic": 0.24574969401082666
+          "mean_shift": 0.011250234567049195,
+          "variance_shift": 0.5279316339252559,
+          "ks_statistic": 0.24363309776046044
         }
       },
       {
         "feature": "scaled_log_pm2_5_lag1",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 1.118126522047055,
-          "variance_shift": 0.12621341544477532,
-          "ks_statistic": 0.11153339594588305
+          "mean_shift": 1.0270822663737609,
+          "variance_shift": 0.14279874700054968,
+          "ks_statistic": 0.10752747057164527
         }
       },
       {
         "feature": "scaled_log_pm2_5_lag12",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 1.227721160876222,
-          "variance_shift": 0.04951968956111104,
-          "ks_statistic": 0.08607400146217645
+          "mean_shift": 0.7710097785875443,
+          "variance_shift": 0.052385019714479966,
+          "ks_statistic": 0.08971575180239261
         }
       },
       {
         "feature": "scaled_log_pm2_5_lag24",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 0.8516357643445988,
-          "variance_shift": 0.20675698236449247,
-          "ks_statistic": 0.0838424025694876
+          "mean_shift": 0.9994577602958314,
+          "variance_shift": 0.15700298815623742,
+          "ks_statistic": 0.11153339594588305
         }
       },
       {
         "feature": "scaled_log_pm10_lag1",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 1.0584834482148817,
-          "variance_shift": 0.10167411839743588,
-          "ks_statistic": 0.12203970876949911
+          "mean_shift": 1.0528553927871556,
+          "variance_shift": 0.117547643501445,
+          "ks_statistic": 0.11073659192407635
         }
       },
       {
         "feature": "scaled_log_pm10_lag12",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 0.846429194884069,
-          "variance_shift": 0.06223655148603025,
-          "ks_statistic": 0.09598887212527621
+          "mean_shift": 0.44840988976650076,
+          "variance_shift": 0.07369987489846754,
+          "ks_statistic": 0.09106566377060807
         }
       },
       {
         "feature": "scaled_log_pm10_lag24",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 0.904331952128981,
-          "variance_shift": 0.16738167612200408,
-          "ks_statistic": 0.09259081786045799
+          "mean_shift": 0.9989661045548052,
+          "variance_shift": 0.12271438793103226,
+          "ks_statistic": 0.12203970876949911
         }
       },
       {
         "feature": "hour_sin",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 11.78698225358615,
-          "variance_shift": 0.0007307073487756675,
-          "ks_statistic": 0.07005303812337593
+          "mean_shift": 11.786982253586105,
+          "variance_shift": 0.0007307073469152448,
+          "ks_statistic": 0.06912754066849393
         }
       },
       {
         "feature": "hour_cos",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 11.786982252347626,
-          "variance_shift": 0.010169288501779665,
-          "ks_statistic": 0.07187117513533346
+          "mean_shift": 11.786982252347649,
+          "variance_shift": 0.010169288499903424,
+          "ks_statistic": 0.07094567768045147
         }
       },
       {
         "feature": "log_pm2_5_scaled_log_windspeed_kph",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 1.0354198708278994,
-          "variance_shift": 0.16389971549304097,
-          "ks_statistic": 0.1414751553220211
+          "mean_shift": 0.8401847643082364,
+          "variance_shift": 0.15093358159157624,
+          "ks_statistic": 0.13479131127655672
         }
       },
       {
         "feature": "scaled_temp_C_scaled_o3",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 1.2609902300758926,
-          "variance_shift": 0.09180404698355454,
-          "ks_statistic": 0.3282613517191526
+          "mean_shift": 0.9388089454592516,
+          "variance_shift": 0.13470375438271423,
+          "ks_statistic": 0.26025919405053
         }
       },
       {
         "feature": "scaled_temp_C_scaled_log_windspeed_kph",
         "drift_type": "mean_shift",
         "metrics": {
-          "mean_shift": 0.19551291784940122,
-          "variance_shift": 0.23923270698419877,
-          "ks_statistic": 0.15544250004791776
+          "mean_shift": 0.16492473565314547,
+          "variance_shift": 0.5044263242979978,
+          "ks_statistic": 0.1502208324548409
         }
       }
     ],
-    "llm_prompt": "Drift Monitoring Agent \u2013 Autonomous LLM Prompt Template\n\nSystem Prompt\nYou are a Data Quality and Drift Monitoring Agent for an Air Quality Index (AQI) prediction pipeline in Karachi, Pakistan. You are an expert in environmental data analysis, time series patterns, and feature engineering for air quality prediction.\n\nTask Description\nAnalyze the provided drift detection results to identify seasonal pattern shifts and recommend new raw or external features that could improve AQI prediction accuracy. You may analyze all features, including engineered ones, to detect patterns and correlations, but do not recommend derived/engineered features (lags, rolling averages, interaction terms or time features like 10am). These will be handled separately by the Feature Engineering Agent.\n\nYour Responsibilities\n1. Drift Analysis: Review statistical drift metrics for all features, including engineered features.\n2. Pattern Recognition: Identify seasonal shifts, distribution changes, and anomalous patterns.\n3. Feature Recommendation: Suggest raw or external features only.\n4. Contextual Reasoning: Consider Karachi-specific environmental factors such as monsoon seasons, urban pollution, industrial activity, and coastal influences.\n\nFeature Categories to Analyze\n- Raw Domain Features: temp_C, humidity_%, windspeed_kph, precip_mm, pm10, pm2_5, co, no2, so2, o3\n- Engineered Features: can be analyzed for drift patterns, but do not recommend them. (Handled separately by Feature Engineering Agent)\n\nInput Format\nData Summary:\n\n    Data Period: 2025-04-01 00:00:00 to 2025-08-20 23:00:00\n    Recent Period (7 days): 2025-08-13 23:00:00 to 2025-08-20 23:00:00\n    Baseline Period (90 days): 2025-05-15 23:00:00 to 2025-08-13 23:00:00\n    \n{drift_detection_results}\n{top_drifting_features}\n\nOutput Format\nRespond with ONLY valid JSON in this exact structure:\n\n{\n  \"seasonal_shift_detected\": boolean,\n  \"features_to_add\": [\"feature_name_1\", \"feature_name_2\", \"...\"],\n  \"reasoning\": \"concise explanation (max 200 words)\"\n}\n\nOutput Guidelines\n- seasonal_shift_detected: true if significant drift is detected (>15% mean/variance shift or major pattern changes).\n- features_to_add: 3-8 impactful raw or external features relevant to the detected drift.\n- reasoning: Explain detected patterns and why the recommended features are helpful. Mention engineered features only for analysis context, not for recommendation.\n\nDecision Criteria\nDetect seasonal_shift = true when:\n- Multiple features show >15% mean/variance shifts.\n- Distribution changes (KS statistic >0.2) in key pollutants.\n- Clear seasonal pattern disruptions.\n- Correlation structure changes between weather and pollutants.\n\nContext: Karachi Environmental Factors\n- Monsoon Season (Jun-Sep): High humidity, rainfall, wind pattern changes.\n- Winter Pollution (Oct-Feb): Temperature inversions, reduced mixing height.\n- Summer Heat (Mar-May): High temperatures, dust storms, photochemical reactions.\n- Urban Factors: Traffic patterns, industrial emissions, construction activity(especially)\n- Coastal Influence: Sea breeze effects, salt particles, humidity variations.\n\nReminder: Focus on actionable, domain-relevant raw features that can be implemented using available APIs or data sources. Do not suggest engineered features like rolling averages, lags, or interactions.\n"
+    "llm_prompt": "Drift Monitoring Agent \u2013 Autonomous LLM Prompt Template\n\nSystem Prompt\nYou are a Data Quality and Drift Monitoring Agent for an Air Quality Index (AQI) prediction pipeline in Karachi, Pakistan. You are an expert in environmental data analysis, time series patterns, and feature engineering for air quality prediction.\n\nTask Description\nAnalyze the provided drift detection results to identify seasonal pattern shifts and recommend new raw or external features that could improve AQI prediction accuracy. You may analyze all features, including engineered ones, to detect patterns and correlations, but do not recommend derived/engineered features (lags, rolling averages, interaction terms or time features like 10am). These will be handled separately by the Feature Engineering Agent.\n\nYour Responsibilities\n1. Drift Analysis: Review statistical drift metrics for all features, including engineered features.\n2. Pattern Recognition: Identify seasonal shifts, distribution changes, and anomalous patterns.\n3. Feature Recommendation: Suggest raw or external features only.\n4. Contextual Reasoning: Consider Karachi-specific environmental factors such as monsoon seasons, urban pollution, industrial activity, and coastal influences.\n\nFeature Categories to Analyze\n- Raw Domain Features: temp_C, humidity_%, windspeed_kph, precip_mm, pm10, pm2_5, co, no2, so2, o3\n- Engineered Features: can be analyzed for drift patterns, but do not recommend them. (Handled separately by Feature Engineering Agent)\n\nInput Format\nData Summary:\n\n    Data Period: 2025-04-01 00:00:00 to 2025-08-21 23:00:00\n    Recent Period (7 days): 2025-08-14 23:00:00 to 2025-08-21 23:00:00\n    Baseline Period (90 days): 2025-05-16 23:00:00 to 2025-08-14 23:00:00\n    \n{drift_detection_results}\n{top_drifting_features}\n\nOutput Format\nRespond with ONLY valid JSON in this exact structure:\n\n{\n  \"seasonal_shift_detected\": boolean,\n  \"features_to_add\": [\"feature_name_1\", \"feature_name_2\", \"...\"],\n  \"reasoning\": \"concise explanation (max 200 words)\"\n}\n\nOutput Guidelines\n- seasonal_shift_detected: true if significant drift is detected (>15% mean/variance shift or major pattern changes).\n- features_to_add: 3-8 impactful raw or external features relevant to the detected drift.\n- reasoning: Explain detected patterns and why the recommended features are helpful. Mention engineered features only for analysis context, not for recommendation.\n\nDecision Criteria\nDetect seasonal_shift = true when:\n- Multiple features show >15% mean/variance shifts.\n- Distribution changes (KS statistic >0.2) in key pollutants.\n- Clear seasonal pattern disruptions.\n- Correlation structure changes between weather and pollutants.\n\nContext: Karachi Environmental Factors\n- Monsoon Season (Jun-Sep): High humidity, rainfall, wind pattern changes.\n- Winter Pollution (Oct-Feb): Temperature inversions, reduced mixing height.\n- Summer Heat (Mar-May): High temperatures, dust storms, photochemical reactions.\n- Urban Factors: Traffic patterns, industrial emissions, construction activity(especially)\n- Coastal Influence: Sea breeze effects, salt particles, humidity variations.\n\nReminder: Focus on actionable, domain-relevant raw features that can be implemented using available APIs or data sources. Do not suggest engineered features like rolling averages, lags, or interactions.\n"
   }
 }
