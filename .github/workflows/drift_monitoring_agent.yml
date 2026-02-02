@@ -4,8 +4,8 @@ on:
   # push:
   #   branches:
   #     - main             # Triggers when code is pushed to main
-  schedule:
-    - cron: "0 10 * * *"  # Runs daily at 10 AM UTC == 3 PM PKT
+#  schedule:
+#    - cron: "0 10 * * *"  # Runs daily at 10 AM UTC == 3 PM PKT
   workflow_dispatch:     # Allows manual triggering from GitHub UI
   
 
